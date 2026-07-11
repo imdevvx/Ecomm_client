@@ -1,0 +1,28 @@
+Login
+    ↓
+Context Login
+
+
+Signup
+    ↓
+Send OTP
+    ↓
+Verify OTP
+    ↓
+Context Login
+
+
+Forgot Password
+    ↓
+Send OTP
+    ↓
+Reset Password
+    ↓
+Login
+    ↓
+Context Login
+
+
+Logout
+    ↓
+Context Logout
