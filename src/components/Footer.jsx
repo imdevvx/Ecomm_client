@@ -15,7 +15,7 @@ const Footer = () => {
                         <Link 
                         to="/"
                         className="text-2xl tracking-tight text-gray-700 hover:text-gray-900 transition-colors">
-                            Brand shop
+                            DVL
                         </Link>
                         <p className="max-w-xs text-sm leading-relaxed text-gray-500">
                             Premium denim and contemporary fashion essentials designed for the modern wardrobe.

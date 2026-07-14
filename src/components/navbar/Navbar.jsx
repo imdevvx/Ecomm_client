@@ -96,7 +96,7 @@ const Navbar = () => {
 
                     {/* Brand Logo */}
                     <Link className='text-2xl font-semibold tracking-tight text-gray-900 hover:text-gray-600 transition-colors' to='/'>
-                        BRAND
+                        DVL
                     </Link>
 
                     {/* Desktop Navigation Links */}
