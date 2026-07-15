@@ -71,7 +71,7 @@ const Footer = () => {
             <div className="border-t border-gray-50 bg-gray-50/50">
                 <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <p className="text-xs text-gray-400 text-center sm:text-left">
-                        &copy; {currentYear} Brand. All rights reserved.
+                        &copy; {currentYear} DVL. All rights reserved.
                     </p>
                     <p className="text-[10px] tracking-wider text-gray-300 uppercase">
                         Crafted for Excellence

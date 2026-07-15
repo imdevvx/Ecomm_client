@@ -1,15 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react'; // 1. Imported useState
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../hooks/useCart';
 import ProductItem from '../components/ProductItem';
 import Totals from '../components/Totals';
-
 import { useToast } from '../context/ToastContext';
 
 const Cart = () => {
-
   const { showToast } = useToast();
-
   const navigate = useNavigate();
 
   const {
@@ -20,6 +17,10 @@ const Cart = () => {
     clearUserCart
   } = useCart();
 
+  // 2. Added states to track active background actions
+  const [isClearing, setIsClearing] = useState(false);
+  const [updatingItemId, setUpdatingItemId] = useState(null); // Tracks "productId_size"
+
   const showError = (error) => {
     showToast(
       error.response?.data?.message || "Something went wrong",
@@ -28,12 +29,16 @@ const Cart = () => {
   };
 
   const handleDecItem = async (item) => {
+    const itemKey = `${item.product._id}_${item.size}`;
+    setUpdatingItemId(itemKey); // Lock this item row
+    
     if (item.quantity === 1) {
       try {
         await removeItemFromCart(item.product._id, item.size);
-      }
-      catch (error) {
-        showError(error)
+      } catch (error) {
+        showError(error);
+      } finally {
+        setUpdatingItemId(null); // Unlock row
       }
       return;
     }
@@ -44,34 +49,39 @@ const Cart = () => {
         item.size,
         item.quantity - 1
       );
+    } catch (error) {
+      showError(error);
+    } finally {
+      setUpdatingItemId(null); // Unlock row
     }
-    catch (error) {
-      showError(error)
-    }
-
   };
 
   const handleIncItem = async (item) => {
+    const itemKey = `${item.product._id}_${item.size}`;
+    setUpdatingItemId(itemKey); // Lock this item row
+    
     try {
       await updateCartItem(
         item.product._id,
         item.size,
         item.quantity + 1
       );
+    } catch (error) {
+      showError(error);
+    } finally {
+      setUpdatingItemId(null); // Unlock row
     }
-    catch (error) {
-      showError(error)
-    }
-
   };
 
   const handleClearCart = async () => {
+    setIsClearing(true); // Lock clear button and show loading text
     try {
       const data = await clearUserCart();
       showToast(data.message, 'info');
-    }
-    catch (error) {
-      showError(error)
+    } catch (error) {
+      showError(error);
+    } finally {
+      setIsClearing(false);
     }
   };
 
@@ -89,9 +99,7 @@ const Cart = () => {
         <div className="mt-8">
           <Link
             to="/"
-            state={
-              { scrollToProducts: true }
-            }
+            state={{ scrollToProducts: true }}
             className="inline-flex items-center justify-center bg-black px-6 py-3 text-sm font-medium uppercase tracking-wider text-white shadow-sm transition-all hover:bg-neutral-800 active:scale-95"
           >
             Continue Shopping
@@ -109,27 +117,33 @@ const Cart = () => {
         <h1 className="text-3xl font-light tracking-tight text-gray-900 sm:text-4xl">Your Cart</h1>
         <button
           onClick={handleClearCart}
-          className="text-xs font-medium uppercase tracking-wider text-red-500 hover:text-red-700 transition-colors cursor-pointer"
+          disabled={isClearing || updatingItemId !== null} // Disable while any operation runs
+          className={`text-xs font-medium uppercase tracking-wider transition-colors flex items-center gap-1.5 ${
+            isClearing || updatingItemId !== null
+              ? 'text-gray-300 cursor-not-allowed'
+              : 'text-red-500 hover:text-red-700 cursor-pointer'
+          }`}
         >
-          Clear entire cart
+          {isClearing ? 'Clearing cart...' : 'Clear entire cart'}
         </button>
       </div>
 
       {/* Main Responsive Grid Layout */}
       <div className="mt-10 grid grid-cols-1 gap-x-12 gap-y-10 lg:grid-cols-12 items-start">
 
-        {/* Left Column: Cart Items (Takes up 7 spaces on desktop) */}
-        <div className="lg:col-span-7 space-y-4">
+        {/* Left Column: Cart Items */}
+        <div className={`lg:col-span-7 space-y-4 transition-opacity duration-200 ${isClearing ? 'opacity-40 pointer-events-none' : ''}`}>
           <ProductItem
             items={cartItems}
             editable={true}
             onIncrease={handleIncItem}
             onDecrease={handleDecItem}
+            updatingItemId={updatingItemId} // 3. Pass down what item is currently locking
           />
         </div>
 
-        {/* Right Column: Checkout Summary (Sticky Sidebar - Takes up 5 spaces) */}
-        <div className="lg:col-span-5 lg:sticky lg:top-8 rounded-xl border border-gray-100 bg-gray-50 p-6 sm:p-8">
+        {/* Right Column: Checkout Summary */}
+        <div className={`lg:col-span-5 lg:sticky lg:top-8 rounded-xl border border-gray-100 bg-gray-50 p-6 sm:p-8 transition-opacity duration-200 ${isClearing || updatingItemId !== null ? 'opacity-60 pointer-events-none' : ''}`}>
 
           <Totals
             name="Order Summary"
@@ -142,13 +156,17 @@ const Cart = () => {
           <div className="mt-8">
             <button
               onClick={() => navigate("/checkout")}
-              className="w-full py-4 bg-black hover:bg-neutral-800 text-white text-center text-sm font-medium uppercase tracking-wider transition-all duration-150 active:scale-[0.99] cursor-pointer shadow-md rounded-md"
+              disabled={isClearing || updatingItemId !== null}
+              className={`w-full py-4 text-center text-sm font-medium uppercase tracking-wider transition-all duration-150 active:scale-[0.99] shadow-md rounded-md ${
+                isClearing || updatingItemId !== null
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
+                  : 'bg-black hover:bg-neutral-800 text-white cursor-pointer'
+              }`}
             >
               Proceed to Checkout
             </button>
           </div>
 
-          {/* Secure transaction notice */}
           <p className="mt-4 text-center text-xs text-gray-400 flex items-center justify-center gap-1.5">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 012 2H3a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />

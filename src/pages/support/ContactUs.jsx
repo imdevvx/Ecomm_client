@@ -24,7 +24,7 @@ const ContactUs = () => {
 
         {/* WhatsApp Card Channel */}
         <a
-          href="https://wa.me/8588949227?text=Hi%20DVL%20Team,%20I%20need%20help%20with%20my%20order"
+          href="https://wa.me/8588949227?text=Hi%20DVL%20Team,%20I%20need%20help%20with%20my%20order%20id%20[Paste%20your%20Order%20id%20here]"
           target="_blank"
           rel="noopener noreferrer"
           className="group block rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-200 hover:border-emerald-400 hover:shadow-md hover:scale-[1.01]"

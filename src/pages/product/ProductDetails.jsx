@@ -26,6 +26,8 @@ const ProductDetails = () => {
     const [quantity, setQuantity] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
 
+    const [isAdding, setIsAdding] = useState(false)
+
     useEffect(() => {
         window.scrollTo({
             top: 0,
@@ -61,6 +63,7 @@ const ProductDetails = () => {
 
     const handleAddItemToCart = async () => {
 
+        setIsAdding(true);
         if (!product.isActive) return;
 
         if (!token) {
@@ -80,6 +83,9 @@ const ProductDetails = () => {
         catch (error) {
             const message = error.response?.data?.message || 'Something went wrong';
             showToast(message, 'error')
+        }
+        finally{
+            setIsAdding(false)
         }
 
     }
@@ -101,6 +107,7 @@ const ProductDetails = () => {
                     quantity={quantity}
                     setQuantity={setQuantity}
                     handleAddItemToCart={handleAddItemToCart}
+                    isAdding={isAdding}
                 />
             </div>
             <RelatedProducts product={product} grid={4} />

@@ -144,7 +144,7 @@ const OrderDetails = () => {
                                 disabled={isCancelled || isCancelling}
                                 className={`w-full py-3.5 text-center text-sm font-medium uppercase tracking-wider text-white transition-all duration-150 rounded-md shadow-sm ${isCancelled
                                     ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
-                                    : 'bg-red-500 hover:bg-red-600 active:scale-[0.99] cursor-pointer'
+                                    : 'bg-red-600 hover:bg-red-700 active:scale-[0.99] cursor-pointer'
                                     }`}
                             >
                                 {isCancelled ? 'Order Cancelled' : isCancelling ? 'Processing...' : 'Cancel Order'}

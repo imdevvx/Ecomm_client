@@ -1,17 +1,18 @@
-import React from 'react';
-import { useNavigate, Link, Navigate, replace } from 'react-router-dom';
+import React, { useState } from 'react'; // 1. Imported useState
+import { useNavigate, Link } from 'react-router-dom';
 
 import { useAuth } from '../../hooks/useAuth';
 import { useAddress } from '../../hooks/useAddress';
 import { useToast } from '../../context/ToastContext';
 
 const Profile = () => {
-
   const { showToast } = useToast();
-
   const navigate = useNavigate();
   const { address } = useAddress();
   const { logout, user } = useAuth();
+
+  // 2. Added logout loading state
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const hasAddress =
     address?.fullName &&
@@ -22,12 +23,15 @@ const Profile = () => {
     address?.pincode;
 
   const handleLogout = () => {
-    showToast('Logged out', 'info')
-    navigate('/', { replace: true })
+    setIsLoggingOut(true); // 3. Set loading state to true instantly
+    showToast('Logged out', 'info');
+    
+    navigate('/', { replace: true });
 
     setTimeout(() => {
       logout();
-    }, 100);
+      // No need to reset state to false since the layout unmounts upon auth cleanup
+    }, 150); // Small buffer to ensure toast + router transition feels fluid
   };
 
   const handleNavigate = () => {
@@ -48,11 +52,23 @@ const Profile = () => {
           <p className="mt-1 text-sm text-gray-500">Manage your credentials, order routes, and preferences.</p>
         </div>
 
+        {/* 4. Enhanced UX Sign Out Button */}
         <button
           onClick={handleLogout}
-          className="sm:order-last self-start sm:self-center px-4 py-2 text-xs font-semibold uppercase tracking-wider text-red-500 hover:bg-red-50 rounded-md transition-colors border border-transparent hover:border-red-100 cursor-pointer"
+          disabled={isLoggingOut}
+          className={`sm:order-last self-start sm:self-center px-4 py-2 text-xs font-semibold uppercase tracking-wider rounded-md transition-all flex items-center gap-2 border ${
+            isLoggingOut
+              ? 'text-gray-400 bg-gray-50 border-gray-100 cursor-not-allowed'
+              : 'text-red-500 hover:bg-red-50 border-transparent hover:border-red-100 cursor-pointer active:scale-95'
+          }`}
         >
-          Sign Out
+          {isLoggingOut && (
+            <svg className="animate-spin h-3.5 w-3.5 text-gray-400" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+          )}
+          {isLoggingOut ? 'Signing Out...' : 'Sign Out'}
         </button>
       </div>
 
